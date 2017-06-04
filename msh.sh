@@ -1,0 +1,111 @@
+#!/bin/bash
+ADDRPATH=~/.ssh/.addresses
+help(){
+echo "Usage: msh [-d|-c|-n|-h] [user@host]"
+echo ""
+echo "       msh                 Connect remote host from address list"
+echo "       msh -c              Add comment for one host address"
+echo "       msh -d              Delete a host address"
+echo "       msh -n [user@]host  Don't copy local key to remote host"
+echo "       msh -h              Help"
+}
+if [ $# == 0 ]
+then
+	cat -n ${ADDRPATH}
+	line=$(sed -n "$=" ${ADDRPATH})
+	read -p "Input selection(default 1):"
+	if [ ${#REPLY} == 0 ]
+	then
+		REPLY="1"
+	elif [ $REPLY -le 0 ] || [ $REPLY -gt $line ]
+	then
+		echo "Invalid Selection!"
+		exit
+	fi
+	addr=$(sed -n "${REPLY}p" ${ADDRPATH}|cut -d' ' -f1)
+	full=$(sed -n "${REPLY}p" ${ADDRPATH})
+	sed -i "/${full}/d" ${ADDRPATH}	
+	line=$(sed -n "$=" ${ADDRPATH})
+	if [ ! $line ]
+	then
+		echo $full > $ADDRPATH
+	else
+		sed -i "1i\\${full}" ${ADDRPATH}
+	fi
+	ssh $addr
+elif [ $# == 1 ]
+then
+	if [ $1 == "-d" ]
+	then	 
+		cat -n ${ADDRPATH}
+		line=$(sed -n "$=" ${ADDRPATH})
+		read -p "Input selection:"	
+		if [ ${#REPLY} == 0 ] || [ $REPLY -gt $line ] || [ $REPLY -le 0 ]
+		then
+			echo "Invalid Selection!"
+			exit
+		fi
+		addr=$(sed -n "${REPLY}p" ${ADDRPATH})
+		sed -i "/${addr}/d" ${ADDRPATH}
+	elif [ $1 == "-c" ]
+	then
+		cat -n ${ADDRPATH}
+		line=$(sed -n "$=" ${ADDRPATH})
+		read -p "Input selection:"
+		if [ ${#REPLY} == 0 ] || [ $REPLY -gt $line ] || [ $REPLY -le 0 ]
+		then
+			echo "Invalid Selection!"
+			exit
+		fi
+		addr=$(sed -n "${REPLY}p" ${ADDRPATH}|cut -d' ' -f1)
+		full=$(sed -n "${REPLY}P" ${ADDRPATH})
+		read -p "Input comment:"
+		sed -i "s/${full}/${addr}      ===> ${REPLY}/g" ${ADDRPATH}
+	elif [ $1 == "-h" ]
+	then
+		help
+	else
+		ssh-copy-id $*
+		if [ $? != 0 ]
+		then
+			exit
+		fi
+		line=$(sed -n "$=" ${ADDRPATH})
+		if [ ! $line ]
+		then
+			echo $1 > ${ADDRPATH}
+		else
+			sed -i "/$1/d"  ${ADDRPATH}
+			line=$(sed -n "$=" ${ADDRPATH})
+			if [ ! $line ]
+			then
+				echo $1 > ${ADDRPATH}
+			else
+				sed -i "1i\\$1" ${ADDRPATH}
+			fi
+		fi
+		ssh $*	
+	fi
+elif [ $# == 2 ]
+then
+	if [ $1 == "-n" ]
+	then
+		line=$(sed -n "$=" ${ADDRPATH})
+		if [ ! $line ]
+		then
+			echo $1 > ${ADDRPATH}
+		else
+			sed -i "/$1/d"  ${ADDRPATH}
+			line=$(sed -n "$=" ${ADDRPATH})
+			if [ ! $line ]
+			then
+				echo $1 > ${ADDRPATH}
+			else
+				sed -i "1i\\$1" ${ADDRPATH}
+			fi
+		fi
+		ssh $2
+	fi
+else
+	help
+fi	
