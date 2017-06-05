@@ -1,8 +1,6 @@
 # msh  
 -------
--------
 This script just use for recording connected host in terminal, in order to avoid input host address anytimes when connecting.
-
 
 Usage
 -------
