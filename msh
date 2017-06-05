@@ -12,6 +12,12 @@ echo "       msh -h              Help"
 }
 if [ $# == 0 ]
 then
+	if [ ! -f $ADDRPATH ]
+	then
+	    echo "There is not any host address."
+	    touch $ADDRPATH
+	    exit
+	fi
 	cat -n ${ADDRPATH}
 	line=$(sed -n "$=" ${ADDRPATH})
 	read -p "Input selection(default 1):"
