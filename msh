@@ -6,7 +6,8 @@ echo ""
 echo "       msh                 Connect remote host from address list"
 echo "       msh -c              Add comment for one host address"
 echo "       msh -d              Delete a host address"
-echo "       msh -n [user@]host  Don't copy local key to remote host"
+echo "       msh -n [user@]host  Don't copy public local key to remote host when connecting firstly"
+echo "       msh -k              Copy local public key to remote for host which already connected"
 echo "       msh -h              Help"
 }
 if [ $# == 0 ]
@@ -61,6 +62,23 @@ then
 		full=$(sed -n "${REPLY}P" ${ADDRPATH})
 		read -p "Input comment:"
 		sed -i "s/${full}/${addr}      ===> ${REPLY}/g" ${ADDRPATH}
+	elif [ $1 == "-k" ]
+	then
+		if [ ! -f "~/.ssh/id_rsa.pub" ]
+		then
+			echo "The public key is not exist"
+			exit
+		fi
+		cat -n ${ADDRPATH}
+		line=$(sed -n "$=" ${ADDRPATH})
+		read -p "Input selection:"
+		if [ ${#REPLY} == 0 ] || [ $REPLY -gt $line ] || [ $REPLY -le 0 ]
+		then
+			echo "Invalid Selection!"
+			exit
+		fi
+		addr=$(sed -n "${REPLY}p" ${ADDRPATH}|cut -d' ' -f1)
+		ssh-copy-id ${addr}
 	elif [ $1 == "-h" ]
 	then
 		help
