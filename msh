@@ -70,7 +70,7 @@ then
 		sed -i "s/${full}/${addr}      ===> ${REPLY}/g" ${ADDRPATH}
 	elif [ $1 == "-k" ]
 	then
-		if [ ! -f "~/.ssh/id_rsa.pub" ]
+		if [ ! -f ~/.ssh/id_rsa.pub ]
 		then
 			echo "The public key is not exist"
 			exit
