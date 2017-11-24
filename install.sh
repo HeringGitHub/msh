@@ -3,8 +3,10 @@ if [ ! -f "/usr/bin/msh" ]
 then
 	cp ./msh /usr/bin
 	chmod +x /usr/bin/msh
+	echo "Install completed!"
 else
-	cp ./msh /usr/local/bin
-	chmod +x /usr/local/bin/msh
+	echo "Install failed."
+	echo "There is a package has same name with msh."
+	echo "Please modify the msh name and install.sh related code."
 fi
-echo "Install completed!"
+
