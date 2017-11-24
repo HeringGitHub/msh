@@ -3,21 +3,22 @@ ADDRPATH=~/.ssh/.addresses
 help(){
 echo "Usage: msh [-d|-c|-n|-h] [user@host]"
 echo ""
+echo "       msh [user@]host     Connect and copy public key to remote host(only in first time)"
 echo "       msh                 Connect remote host from address list"
 echo "       msh -c              Add comment for one host address"
 echo "       msh -d              Delete a host address"
-echo "       msh -n [user@]host  Don't copy public local key to remote host when connecting firstly"
+echo "       msh -n [user@]host  Connect but not copy public key to remote host(only in first time)"
 echo "       msh -k              Copy local public key to remote for host which already connected"
 echo "       msh -h              Help"
 }
+
+if [ ! -f $ADDRPATH ]
+then
+    touch $ADDRPATH
+fi
+
 if [ $# == 0 ]
 then
-	if [ ! -f $ADDRPATH ]
-	then
-	    echo "There is not any host address."
-	    touch $ADDRPATH
-	    exit
-	fi
 	cat -n ${ADDRPATH}
 	line=$(sed -n "$=" ${ADDRPATH})
 	read -p "Input selection(default 1):"
@@ -89,6 +90,11 @@ then
 	then
 		help
 	else
+		if [ ! -f "~/.ssh/id_rsa.pub" ]
+		then
+			ssh-keygen
+			exit
+		fi
 		ssh-copy-id $*
 		if [ $? != 0 ]
 		then
@@ -129,6 +135,8 @@ then
 			fi
 		fi
 		ssh $2
+	else
+		help
 	fi
 else
 	help
