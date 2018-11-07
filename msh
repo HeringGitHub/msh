@@ -25,8 +25,10 @@ then
 	if [ ${#REPLY} == 0 ]
 	then
 		REPLY="1"
-	elif [ $REPLY -le 0 ] || [ $REPLY -gt $line ]
+	elif [ "$REPLY" -gt 0 ] 2> /dev/null && [ $REPLY -le $line ] 2> /dev/null
 	then
+		:;
+	else
 		echo "Invalid Selection!"
 		exit
 	fi
