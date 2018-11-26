@@ -92,7 +92,7 @@ then
 	then
 		help
 	else
-		if [ ! -f "~/.ssh/id_rsa.pub" ]
+		if [ ! -f ~/.ssh/id_rsa.pub ]
 		then
 			ssh-keygen
 			exit
